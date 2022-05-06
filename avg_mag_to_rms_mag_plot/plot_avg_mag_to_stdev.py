@@ -12,7 +12,7 @@ def plot_data():
         "../COSMOS_PSdetection_filter2.fits", format="fits"
     )  # Reads in the table directly from the .fits file
 
-    # maintable.write("COSMOS_PSdetection_filter2.csv", format="ascii.csv", overwrite=True)
+    maintable.write("COSMOS_PSdetection_filter2.csv", format="ascii.csv", overwrite=True)
 
     # maintable numpy conversion
     maintable_structured = np.lib.recfunctions.structured_to_unstructured(
@@ -25,10 +25,6 @@ def plot_data():
     min_data_points = 10
     datapoint_data = unique_ids[np.where(counts >= min_data_points)]
 
-    # magnitude evaulation factors
-    m_r = 1
-    F_r = 1
-
     mag_rms = []
     avg_mags = []
     n = len(datapoint_data)
@@ -38,7 +34,7 @@ def plot_data():
         # avg mags
         magnitudes = []
         flux_values = data[:, 11]
-        magnitudes = -2.5 * np.log10(flux_values / F_r) + m_r
+        magnitudes = -2.5 * np.log10(flux_values / 3631)
         average_mag = np.mean(magnitudes)
         avg_mags.append(average_mag)
         # rms
@@ -58,13 +54,13 @@ def plot_data():
     return mag_rms, avg_mags
 
 
+
 def plot_data_from_file():
     data_file = np.genfromtxt("plotting_data.csv", delimiter=",", names=True)
     avg_mags = data_file["avg_mags"]
     mag_rms = data_file["mag_rms"]
     return mag_rms, avg_mags
-
-
+  
 # mag_rms, avg_mags = plot_data()
 mag_rms, avg_mags = plot_data_from_file()
 
@@ -77,5 +73,10 @@ plt.ylabel("r.m.s deviation (mag)")
 ax = plt.gca()
 ax.spines["right"].set_visible(False)
 ax.spines["top"].set_visible(False)
+
+ax = plt.subplots()
+ax.plot(avg_mags, mag_rms, 'o-', label='line plot')
+mag_rms_avg = [np.mean(avg_mags)] * len(avg_mags)
+ax.plot(avg_mags, mag_rms_avg, color='black', lw=6, ls='--', label="average plot")
 
 plt.show()
